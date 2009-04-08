@@ -17,8 +17,8 @@ defined by the International Astronomical Union's FITS Working Group.
 \tabular{ll}{
 Package: \tab FITSio\cr
 Type: \tab Package\cr
-Version: \tab 1.0-2\cr
-Date: \tab 2008-08-03\cr
+Version: \tab 1.0-3\cr
+Date: \tab 2009-04-08\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }

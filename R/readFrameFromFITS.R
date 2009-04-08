@@ -12,6 +12,7 @@ function (file, hdu = 1)
   ## Requires .nameFrameColumn.r
 ###
 ### Written by Eric H. Neilsen, Jr., FNAL
+###   Modified set data frame properly at line 28, 2009-04-08
 ###
     ## Get data
     fitsContent <- readFITS(file, hdu)
@@ -24,7 +25,7 @@ function (file, hdu = 1)
         newFrame <- data.frame(fitsContent$col[[i]])
         newFrame <- .nameFrameColumn(newFrame, fitsContent$col[[i]], 
             fitsContent$colNames[i])
-        dataFrame <- c(dataFrame, newFrame)
+        dataFrame <- data.frame(c(dataFrame, newFrame))
     }
     ## Return
     dataFrame

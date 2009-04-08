@@ -1,0 +1,12 @@
+In FITSio_1.0-2
+
+In readFrameFromFITS: 
+ A. Harris changed 
+   dataFrame <- c(dataFrame, newFrame)
+ to
+   dataFrame <- data.frame(c(dataFrame, newFrame))
+following E. Neilsen's request
+
+Released as FISTio_1.0-3 2009-04-08
+
+***************************
