@@ -1,5 +1,5 @@
 `readFITSarray` <-
-function (zz, hdr) 
+function (zz, hdr)
 {
 ### Reader for FITS multidimentsional arrays, including 2D images
 ###
@@ -11,12 +11,14 @@ function (zz, hdr)
   ## Axis data frame: axDat
   ## Header vector: hdr
 ### Requires/Used by:
-  ## Requires readFITSheader.r 
+  ## Requires readFITSheader.r
 ###
 ### Refs: http://fits.gsfc.nasa.gov/
-###       Hanisch et al., Astr. Ap. 376, 359-380 (2001) 
+###       Hanisch et al., Astr. Ap. 376, 359-380 (2001)
 ###
 ### A. Harris, Univ. MD Astronomy, 4/17/08
+### Changed defaults for missing CRPIX, CRVAL, and CDELT from NA to 1 (L65-71)
+### AH 7/11/09
 ###
     ## Determine number of array dimensions
     naxis <- as.numeric(hdr[which(hdr == "NAXIS") + 1])
@@ -54,33 +56,33 @@ function (zz, hdr)
     PZEROn <- numeric(naxis)
     numwords <- 1
     for (i in 1:naxis) {
-        tmp <- as.numeric(hdr[which(hdr == paste("NAXIS", i, 
+        tmp <- as.numeric(hdr[which(hdr == paste("NAXIS", i,
             sep = "")) + 1])
         numwords <- numwords * tmp
         NAXISn[i] <- tmp
-        tmp <- hdr[which(hdr == paste("CRPIX", i, sep = "")) + 
+        tmp <- hdr[which(hdr == paste("CRPIX", i, sep = "")) +
             1]
-        CRPIXn[i] <- ifelse(length(tmp) != 1, NA, as.numeric(tmp))
-        tmp <- hdr[which(hdr == paste("CRVAL", i, sep = "")) + 
+        CRPIXn[i] <- ifelse(length(tmp) != 1, 1, as.numeric(tmp))
+        tmp <- hdr[which(hdr == paste("CRVAL", i, sep = "")) +
             1]
-        CRVALn[i] <- ifelse(length(tmp) != 1, NA, as.numeric(tmp))
-        tmp <- hdr[which(hdr == paste("CDELT", i, sep = "")) + 
+        CRVALn[i] <- ifelse(length(tmp) != 1, 1, as.numeric(tmp))
+        tmp <- hdr[which(hdr == paste("CDELT", i, sep = "")) +
             1]
-        CDELTn[i] <- ifelse(length(tmp) != 1, NA, as.numeric(tmp))
-        tmp <- hdr[which(hdr == paste("CTYPE", i, sep = "")) + 
+        CDELTn[i] <- ifelse(length(tmp) != 1, 1, as.numeric(tmp))
+        tmp <- hdr[which(hdr == paste("CTYPE", i, sep = "")) +
             1]
         CTYPEn[i] <- ifelse(length(tmp) != 1, "", tmp)
-        tmp <- hdr[which(hdr == paste("CUNIT", i, sep = "")) + 
+        tmp <- hdr[which(hdr == paste("CUNIT", i, sep = "")) +
             1]
         CUNITn[i] <- ifelse(length(tmp) != 1, "", tmp)
     }
-    ## Read data into array.  Column data increments faster than row 
+    ## Read data into array.  Column data increments faster than row
     ## data.  To get back to [row, column] notation for 2D array, D <- t(D).
-    D <- array(readBin(zz, what = btype, n = numwords, size = bsize, 
+    D <- array(readBin(zz, what = btype, n = numwords, size = bsize,
         signed = bsign, endian = "big"), dim = NAXISn)
     ## Finish reading block
     nbyte <- prod(NAXISn) * bsize
-    nbyte <- ifelse(nbyte%%2880 == 0, 0, (1 - (nbyte/2880)%%1) * 
+    nbyte <- ifelse(nbyte%%2880 == 0, 0, (1 - (nbyte/2880)%%1) *
         2880)
     ## Scale image to physical units if needed
     tmp <- readChar(zz, nbyte)
@@ -90,12 +92,12 @@ function (zz, hdr)
     BSCALE <- ifelse(length(tmp) != 1, 1, as.numeric(tmp))
     tmp <- hdr[which(hdr == "BZERO") + 1]
     BZERO <- ifelse(length(tmp) != 1, 0, as.numeric(tmp))
-    if (BSCALE != 1 || BZERO != 0) 
+    if (BSCALE != 1 || BZERO != 0)
         D <- D * BSCALE + BZERO
     ## Make data frame with axis data
-    axDat <- data.frame(CRPIXn, CRVALn, CDELTn, dim(D), CTYPEn, 
+    axDat <- data.frame(CRPIXn, CRVALn, CDELTn, dim(D), CTYPEn,
         CUNITn)
-    names(axDat) <- c("crpix", "crval", "cdelt", "len", "ctype", 
+    names(axDat) <- c("crpix", "crval", "cdelt", "len", "ctype",
         "cunit")
     ## Return structure with data and image information
     list(imDat = D, axDat = axDat, hdr = hdr)

@@ -16,7 +16,7 @@ readFITSarray(zz, hdr)
 \details{
   \code{readFITSarray} reads the data from the image part of a FITS
   Header and Data Unit containing image data.  The header must be
-  read first by \code{readFITSheader} to provide the variable \var{hdr}. 
+  read first by \code{readFITSheader} to provide the variable \var{hdr}.
 }
 \value{
   A list containing
@@ -34,9 +34,12 @@ Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
 \author{Andrew Harris}
 
 \note{
-  Graphical FITS viewers such as \emph{fv}
+Function assigns values of 1 to CRPIX, CRVAL, and CDELT if they are
+unspecified in the header.
+
+Graphical FITS viewers such as \emph{fv}
   (\url{http://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
-(\url{http://hea-www.harvard.edu/RD/ds9/}) 
+(\url{http://hea-www.harvard.edu/RD/ds9/})
 have excellent facilities for displaying FITS data, headers, and file
 structure.  Having one or more graphical viewers available will
 prove extremely
@@ -49,7 +52,7 @@ unix, Windows, and Mac OS-X operating systems, and are available at no cost.
 
 \seealso{
   \code{\link{readFITS}}, \code{\link{readFITSheader}},
-  \code{\link{readFITSbintable}}, \code{\link{file}} 
+  \code{\link{readFITSbintable}}, \code{\link{file}}
 }
 
 \examples{
@@ -60,9 +63,9 @@ unix, Windows, and Mac OS-X operating systems, and are available at no cost.
     ## Open file, read header and array, close file and delete.
     zz <- file(description = "test.fits", open = "rb")
     hdr <- readFITSheader(zz)  # image data off primary header
-    D <- readFITSarray(zz, hdr) 
+    D <- readFITSarray(zz, hdr)
     close(zz)
-    ## Look at data 
+    ## Look at data
     summary(D)
     image(D$imDat)
     ## Delete test file
