@@ -1,8 +1,8 @@
 Package: FITSio
 Type: Package
 Title: FITS (Flexible Image Transport System) utilities
-Version: 1.1-0
-Date: 2009-07-10
+Version: 1.2-0
+Date: 2010-09-24
 Author: Andrew Harris
 Maintainer: Andrew Harris <harris@astro.umd.edu>
 Depends: R (>= 2.0.0)
@@ -20,6 +20,6 @@ Description: Utilities to read and write files in the FITS (Flexible
         extensions, as well as bit, complex, and array descriptor data
         types in binary tables.
 License: GPL (>= 2)
-Packaged: 2009-07-12 05:04:07 UTC; Harris
+Packaged: 2012-10-29 08:57:03 UTC; ripley
 Repository: CRAN
-Date/Publication: 2009-10-20 06:56:27
+Date/Publication: 2012-10-29 08:57:03

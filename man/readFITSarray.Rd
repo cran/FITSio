@@ -66,7 +66,7 @@ unix, Windows, and Mac OS-X operating systems, and are available at no cost.
     D <- readFITSarray(zz, hdr)
     close(zz)
     ## Look at data
-    summary(D)
+    str(D)
     image(D$imDat)
     ## Delete test file
     unlink("test.fits")

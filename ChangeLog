@@ -1,3 +1,17 @@
+New in FITSio_1.2-0
+
+Fixed readFITS so it can read arrays (images) following a primary hdu that
+	itelf specifies an attached array.
+Reworked read calculation and method for end-of-block padding.
+Added error handling to check for incomplete headers, also an option to
+	remove or replace non-printing characters from a header.  This latter
+	should be used with caution, as depending on how the characters
+	were introduced, this may corrupt the returned data.
+
+A. Harris 2010-09-28
+
+***************************
+
 New in FITSio_1.1-0
 
 Fixed parsing in readFITShdr.R to preserve value string when in quotes.

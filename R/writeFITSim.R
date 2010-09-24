@@ -1,7 +1,7 @@
 `writeFITSim` <-
-function (X, file = "R.fits", type = "double", bscale = 1, 
-    bzero = 0, c1 = NA, c2 = NA, crpixn = NA, crvaln = NA, cdeltn = NA, 
-    ctypen = NA, cunitn = NA) 
+function (X, file = "R.fits", type = "double", bscale = 1,
+    bzero = 0, c1 = NA, c2 = NA, crpixn = NA, crvaln = NA, cdeltn = NA,
+    ctypen = NA, cunitn = NA)
 {
 ### Function writes FITS image after primary header
 ###
@@ -11,14 +11,14 @@ function (X, file = "R.fits", type = "double", bscale = 1,
   ## Type to write (single or double precision)
   ## Overall scaling and shifting variables: bscale, bzero
   ## Text comment variables: c1 and c2
-  ## Axis parameters with usual FITS standard meanings 
+  ## Axis parameters with usual FITS standard meanings
 ### Returns:
   ## Writes FITS file to disk
 ### Requires/Used by:
   ## Requires .writeFITShdr0.r
 ###
 ### Refs: http://fits.gsfc.nasa.gov/
-###       Hanisch et al., Astr. Ap. 376, 359-380 (2001) 
+###       Hanisch et al., Astr. Ap. 376, 359-380 (2001)
 ###
 ### A. Harris, Univ. MD Astronomy, 4/22/08
 ###
@@ -30,7 +30,7 @@ function (X, file = "R.fits", type = "double", bscale = 1,
         switch(type, b = {
             bitpix <- 8
             size <- 1
-        }, s = {             
+        }, s = {
             bitpix <- 16
             size <- 2
         }, d = {
@@ -50,9 +50,10 @@ function (X, file = "R.fits", type = "double", bscale = 1,
     ## Open file
     zz <- file(file, "wb")
     ## Write primary header (do not modify bitpix, naxis, or naxisn!)
-    hdr0 <- .writeFITShdr0(bitpix = bitpix, naxis = naxis, naxisn = dim(X), 
-        bscale = bscale, bzero = bzero, c1 = c1, c2 = c2, crpixn = crpixn, 
-        crvaln = crvaln, cdeltn = cdeltn, ctypen = ctypen, cunitn = cunitn)
+    hdr0 <- .writeFITShdr(primaryhdu = TRUE, bitpix = bitpix, naxis = naxis,
+                          naxisn = dim(X), bscale = bscale, bzero = bzero,
+                          c1 = c1, c2 = c2, crpixn = crpixn, crvaln = crvaln,
+                          cdeltn = cdeltn, ctypen = ctypen, cunitn = cunitn)
     writeChar(hdr0, zz, eos = NULL)
     ## Then write data
     writeBin(as.vector(X), zz, size = size, endian = "big")
@@ -63,10 +64,10 @@ function (X, file = "R.fits", type = "double", bscale = 1,
     close(zz)
 }
 
-`.writeFITShdr0` <-
-function (bitpix = bitpix, naxis = naxis, naxisn = naxisn, bscale = 1, 
-    bzero = 0, c1 = NA, c2 = NA, crpixn = NA, crvaln = NA, cdeltn = NA, 
-    ctypen = NA, cunitn = NA) 
+`.writeFITShdr` <-
+function (primaryhdu = TRUE, bitpix = bitpix, naxis = naxis,
+          naxisn = naxisn, bscale = 1, bzero = 0, c1 = NA, c2 = NA,
+          crpixn = NA, crvaln = NA, cdeltn = NA, ctypen = NA, cunitn = NA)
 {
 ### Function assembles FITS primary header for images
 ###    (multi-dimensional arrays)
@@ -78,36 +79,41 @@ function (bitpix = bitpix, naxis = naxis, naxisn = naxisn, bscale = 1,
 ### Returns:
   ## Header data for writeFITSim.r
 ### Requires/Used by:
-  ## 
+  ##
 ###
 ### Refs: http://fits.gsfc.nasa.gov/
-###       Hanisch et al., Astr. Ap. 376, 359-380 (2001) 
+###       Hanisch et al., Astr. Ap. 376, 359-380 (2001)
 ###
 ### A. Harris, Univ. MD Astronomy, 4/17/08
+  ## Added option for writing secondary hdus, 9/21/10 AH
 ###
     ## Make defaults, also if arguments are missing
-    if (is.na(crpixn[1])) 
+    if (is.na(crpixn[1]))
         crpixn[1:naxis] <- 1
-    if (is.na(crvaln[1])) 
+    if (is.na(crvaln[1]))
         crvaln[1:naxis] <- 1
-    if (is.na(cdeltn[1])) 
+    if (is.na(cdeltn[1]))
         cdeltn[1:naxis] <- 1
-    if (is.na(ctypen[1])) 
+    if (is.na(ctypen[1]))
         ctypen[1:naxis] <- ""
-    if (is.na(cunitn[1])) 
+    if (is.na(cunitn[1]))
         cunitn[1:naxis] <- ""
     bpad <- sprintf("%80s", " ")
     ## Assemble header string
-    txt <- "SIMPLE  =                    T / file conforms to FITS standard"
+    if (primaryhdu) {
+        txt <- "SIMPLE  =                    T / file conforms to FITS standard"
+    } else {
+        txt <- "XTENSION= 'IMAGE'              / Image extension"
+   }
     hdr <- strtrim(paste(txt, bpad), 80)
-    txt <- sprintf("BITPIX  = %20d / number of bits per data pixel", 
+    txt <- sprintf("BITPIX  = %20d / number of bits per data pixel",
         bitpix)
     hdr <- paste(hdr, strtrim(paste(txt, bpad), 80), sep = "")
     txt <- sprintf("NAXIS   = %20d / number of data axes", naxis)
     hdr <- paste(hdr, strtrim(paste(txt, bpad), 80), sep = "")
     for (i in 1:naxis) {
         lab <- paste("NAXIS", i, sep = "")
-        txt <- sprintf("%s  = %20d / length of data axis", lab, 
+        txt <- sprintf("%s  = %20d / length of data axis", lab,
             naxisn[i])
         hdr <- paste(hdr, strtrim(paste(txt, bpad), 80), sep = "")
     }
@@ -115,12 +121,12 @@ function (bitpix = bitpix, naxis = naxis, naxisn = naxisn, bscale = 1,
     hdr <- paste(hdr, strtrim(paste(txt, bpad), 80), sep = "")
     if (!is.na(c1)) {
         txt <- c1
-        hdr <- paste(hdr, strtrim(paste("COMMENT  ", txt, bpad), 
+        hdr <- paste(hdr, strtrim(paste("COMMENT  ", txt, bpad),
             80), sep = "")
     }
     if (!is.na(c2)) {
         txt <- c2
-        hdr <- paste(hdr, strtrim(paste("COMMENT  ", txt, bpad), 
+        hdr <- paste(hdr, strtrim(paste("COMMENT  ", txt, bpad),
             80), sep = "")
     }
     txt <- "COMMENT   Written by writeFITSim.r  ver 1.1"
@@ -152,9 +158,9 @@ function (bitpix = bitpix, naxis = naxis, naxisn = naxisn, bscale = 1,
     }
     txt <- "END"
     hdr <- paste(hdr, strtrim(paste(txt, bpad), 80), sep = "")
-    ## Fill header to 2880 bytes 
+    ## Fill header to 2880 bytes
     ncards <- nchar(hdr, type = "chars")/80
-    ncards <- ifelse(ncards%%36 == 0, 0, (1 - (ncards/36)%%1) * 
+    ncards <- ifelse(ncards%%36 == 0, 0, (1 - (ncards/36)%%1) *
         36)
     if (ncards > 0) {
         for (i in 1:ncards) hdr <- paste(hdr, bpad, sep = "")

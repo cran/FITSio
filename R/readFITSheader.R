@@ -1,5 +1,5 @@
 `readFITSheader` <-
-function (zz, maxLines = 5000)
+function (zz, maxLines = 5000, fixHdr = 'none')
 {
 ### Function gets FITS header
 ###
@@ -15,6 +15,8 @@ function (zz, maxLines = 5000)
 ###       Hanisch et al., Astr. Ap. 376, 359-380 (2001)
 ###
 ### A. Harris, Univ. MD Astronomy, 3/21/08
+  ## Added header length check 9/22/10 AH
+  ## Added header fixes (remove/replace) 9/25/2010 AH
 ###
     foundEnd <- FALSE
     hdr <- character()
@@ -22,7 +24,49 @@ function (zz, maxLines = 5000)
     maxHdrs <- maxLines/36  # max number of header units to read
     while (!foundEnd) {
         ## Each header is a set of 36 80-column card images
-        tmp <- .fitsHdrParse(readChar(zz, 2880))
+        switch(pmatch(fixHdr, c('none', 'remove', 'substitute'), nomatch=4),
+               { # header is ok
+                    inpString <- readChar(zz, 2880)
+                    if (nchar(inpString) != 2880) {
+                        txt <- paste('*** Header problem:', nchar(inpString),
+                                     'characters instead of 2880; try option fixHdr *** \n')
+                        close(zz)
+                        stop(txt)
+                    }
+                }, { # substitute blanks for non-printing characters from header
+                   nbytes <- 2880
+                   inpBin <- raw()
+                   while (nbytes != 0) {
+                       inpBin <- c(inpBin, readBin(zz, 'raw', nbytes))
+                       idxBad <- which(inpBin <= 0x1F | inpBin == 0x7F)
+                       nbytes <- length(idxBad)
+                       if (nbytes > 0) {
+                           inpBin <- inpBin[-idxBad]
+                           txt <- paste('*** Removed', length(idxBad),
+                                        'non-printing characters in header ***\n')
+                           cat(txt)
+                       }
+                       inpString <- rawToChar(inpBin)
+                   }
+                }, { # substitute spaces for non-printing characters
+                    inpBin <- readBin(zz, 'raw', 2880)
+                    idxBad <- which(inpBin <= 0x1F | inpBin == 0x7F)
+                    nbytes <- length(idxBad)
+                    if (nbytes > 0) {
+                        inpBin[idxBad] <- as.raw(0x20)  # substitute space
+                        txt <- paste('*** Substituted', nbytes,
+                                     'spaces for non-printing characters ***\n')
+                        cat(txt)
+                    }
+                    inpString <- rawToChar(inpBin)
+                }, {
+                    txt <- '*** fixHdr must be one of: none, remove, or substitute ***\n'
+                    close(zz)
+                    stop(txt)
+                }
+
+        )
+        tmp <- .fitsHdrParse(inpString)
         hdr <- c(hdr, tmp$hdrInfo)
         foundEnd <- tmp$foundEnd
         if (i > maxHdrs)

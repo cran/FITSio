@@ -17,8 +17,8 @@ defined by the International Astronomical Union's FITS Working Group.
 \tabular{ll}{
 Package: \tab FITSio\cr
 Type: \tab Package\cr
-Version: \tab 1.1-0\cr
-Date: \tab 2009-07-11\cr
+Version: \tab 1.2-0\cr
+Date: \tab 2010-09-28\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -75,7 +75,7 @@ ax2 <- axVec(2, X$axDat)
 xlab <- X$axDat$ctype[1]
 ylab <- paste(X$axDat$ctype[2], " [", X$axDat$cunit[2], "]", sep = "")
 image(ax1, ax2, X$imDat, xlab = xlab, ylab = ylab)
-summary(X)
+str(X)
 X$axDat                           # Display data frame with axis data
 X$hdr[1:10]                       # Header sample
 X$hdr[which(X$hdr=="BITPIX")+1]   # BITPIX value from header

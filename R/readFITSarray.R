@@ -19,6 +19,7 @@ function (zz, hdr)
 ### A. Harris, Univ. MD Astronomy, 4/17/08
 ### Changed defaults for missing CRPIX, CRVAL, and CDELT from NA to 1 (L65-71)
 ### AH 7/11/09
+### Fixed apparent problem in padding calculation and read, 9/28/10 AH
 ###
     ## Determine number of array dimensions
     naxis <- as.numeric(hdr[which(hdr == "NAXIS") + 1])
@@ -81,11 +82,10 @@ function (zz, hdr)
     D <- array(readBin(zz, what = btype, n = numwords, size = bsize,
         signed = bsign, endian = "big"), dim = NAXISn)
     ## Finish reading block
-    nbyte <- prod(NAXISn) * bsize
-    nbyte <- ifelse(nbyte%%2880 == 0, 0, (1 - (nbyte/2880)%%1) *
-        2880)
+    nbyte <- numwords * bsize
+    nbyte <- ifelse(nbyte%%2880 == 0, 0, 2880 - nbyte%%2880)
+    tmp <- readBin(zz, what = 'raw', n = nbyte)
     ## Scale image to physical units if needed
-    tmp <- readChar(zz, nbyte)
     tmp <- hdr[which(hdr == "BUNIT") + 1]
     BUNIT <- ifelse(length(tmp) != 1, "", tmp)
     tmp <- hdr[which(hdr == "BSCALE") + 1]

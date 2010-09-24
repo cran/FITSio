@@ -6,12 +6,13 @@
   Read a FITS header from an open connection to a FITS file.
 }
 \usage{
-readFITSheader(zz, maxLines = 5000)
+readFITSheader(zz, maxLines = 5000, fixHdr = 'none')
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{zz}{file handle; see Example.}
   \item{maxLines}{maximum number of header lines to read; see Details.}
+  \item{fixHdr}{deal with non-printing characters in header; see Details.}
 }
 \details{
   \code{readFITSheader} reads the data from the header part of a FITS
@@ -28,6 +29,15 @@ readFITSheader(zz, maxLines = 5000)
   number of reads exceeds  \var{maxLines}.  Increase the value as
   needed for very large headers.
 
+  \var{fixHdr} attempts to fix headers with non-printing characters,
+  either by removing them with \code{fixHdr = remove}, reading further
+  into the file until 2880 valid characters are present, or by
+  substituting spaces for non-printing characters with \code{fixHdr =
+  substitute}.  This option should be used with caution, as non-printing
+  characters should not be in the header in the first place, so this
+  option may or may not corrupt the following data.  The default is
+  \code{fixHdr = 'none'}.  Partial matching is allowed.
+
   The header vector does not have an easy format for
   people to read (graphical FITS viewers like \emph{fv} and
   \emph{SAOImage DS9} are good for this),
@@ -36,7 +46,7 @@ readFITSheader(zz, maxLines = 5000)
   \emph{keyword value keyword value \ldots}
   format, where keywords without values are simply followed by the next
   keyword.  This means a seach for a keyword will give the corresponding
-  value as the next element in the vector; see the Examples.    
+  value as the next element in the vector; see the Examples.
 }
 \value{
   \var{hdr} is a character vector \var{hdr}
@@ -54,7 +64,7 @@ Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
 \note{
   Graphical FITS viewers such as \emph{fv}
   (\url{http://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
-(\url{http://hea-www.harvard.edu/RD/ds9/}) 
+(\url{http://hea-www.harvard.edu/RD/ds9/})
 have excellent facilities for displaying FITS data, headers, and file
 structure.  Having one or more graphical viewers available will
 prove extremely
@@ -78,11 +88,11 @@ writeFITSim(Z, file = "test.fits", c1 = "Test FITS file",
             crpix = c(1,1), crvaln = c(10, 100), cdeltn = c(8, 2),
             ctypen = c("Distance", "Time"),
             cunitn = c("Furlongs", "Fortnights"))
-## Read back in 
+## Read back in
 ## Open file, read header and array, close file and delete.
     zz <- file(description = "test.fits", open = "rb")
     hdr <- readFITSheader(zz)
-    D <- readFITSarray(zz, hdr) 
+    D <- readFITSarray(zz, hdr)
     close(zz)
     hdr[1:10]                       # Header sample
     hdr[which(hdr=="BITPIX")+1]   # BITPIX value from header

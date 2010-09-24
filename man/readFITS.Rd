@@ -8,7 +8,7 @@
   creating code to read more complex FITS files.
 }
 \usage{
-readFITS(file = "R.fits", hdu = 1, phdu = 1)
+readFITS(file = "R.fits", hdu = 1, phdu = 1, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -16,6 +16,7 @@ readFITS(file = "R.fits", hdu = 1, phdu = 1)
   \item{hdu}{position of Header and Data Unit (HDU) in FITS file: 1 for
     the first HDU, 2 for the second HDU, etc.}
   \item{phdu}{rarely needed; see Details.}
+  \item{...}{pass variables (e.g. \code{fixHdr}) to reads; see Details.}
 }
 \details{
   \code{readFITS} is a simple but complete FITS file reader,
@@ -37,20 +38,31 @@ readFITS(file = "R.fits", hdu = 1, phdu = 1)
   and NAXIS1 != 0.)  This does not seem to be forbidden by the FITS
   standard but would be unlikely coding.
 
+  \var{...} passes additional values for file reading.  The only use at
+  present is to pass values to \var{fixHdr} in \code{readFITSheader}.
+  \var{fixHdr} attempts to fix headers with non-printing characters,
+  either by removing them with \code{fixHdr = remove}, reading further
+  into the file until 2880 valid characters are present, or by
+  substituting spaces for non-printing characters with \code{fixHdr =
+  substitute}.  This option should be used with caution, as non-printing
+  characters should not be in the header in the first place, so this
+  option may or may not corrupt the following data.  The default is
+  \code{fixHdr = 'none'}.  Partial matching is allowed.
+
   Binary table bit, complex, and array
   descriptor data types are not implemented in this release due to a lack
   of examples for testing.
 }
 
 \value{
-  Return values from \code{readFITS} are a list depending on the data type: 
+  Return values from \code{readFITS} are a list depending on the data type:
   \item{imDat}{Data array (image).}
   \item{axDat}{Data frame with axis scaling and labels (image).}
   \item{hdr}{Vector with parsed header (all).}
   \item{col}{Data from each column (bintable).}
   \item{colNames}{Vector of column names, TTYPEn FITS variable (bintable).}
   \item{colUnits}{Vector of column units, TUNITn FITS variable (bintable).}
-  \item{TNULLn}{Vector of undefined value definitions, FITS variable 
+  \item{TNULLn}{Vector of undefined value definitions, FITS variable
         (bintable).}
   \item{TSCALn}{Vector of multipliers for scaling, FITS variable (bintable).}
   \item{TZEROn}{Vector of zeros for scaling, FITS variable (bintable).}
@@ -69,28 +81,28 @@ Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
 
   Graphical FITS viewers such as \emph{fv}
 (\url{http://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
-(\url{http://hea-www.harvard.edu/RD/ds9/}) 
+(\url{http://hea-www.harvard.edu/RD/ds9/})
 have excellent facilities for displaying FITS data, headers, and file
 structure.  Having one or more graphical viewers available will
 prove extremely
 useful
 for working with FITS
 files, even when the data are read into \R for further processing.
-\emph{fv} and \emph{SAOImage DS9} are in active devlopement 
+\emph{fv} and \emph{SAOImage DS9} are in active devlopement
 with support for
 unix, Windows, and Mac OS-X operating systems, and are available at no cost.
 
 See \code{readFrameFromFITS} to read a binary table
 directly into an \R data frame.
- 
+
 }
 
 \seealso{
-\code{\link{readFITSarray}}, 
+\code{\link{readFITSarray}},
 \code{\link{readFITSbintable}},
-\code{\link{readFITSheader}}, 
+\code{\link{readFITSheader}},
 \code{\link{readFrameFromFITS}},
-\code{\link{image}}, \code{\link{par}} 
+\code{\link{image}}, \code{\link{par}}
 }
 \examples{
 require("FITSio")
@@ -106,10 +118,10 @@ writeFITSim(Z, file = "test.fits", c1 = "Test FITS file",
 X <-  readFITS("test.fits")
 ax1 <- axVec(1, X$axDat)          # Make axis vector for image
 ax2 <- axVec(2, X$axDat)
-xlab <- X$axDat$ctype[1]          
+xlab <- X$axDat$ctype[1]
 ylab <- paste(X$axDat$ctype[2], " [", X$axDat$cunit[2], "]", sep = "")
 image(ax1, ax2, X$imDat, xlab = xlab, ylab = ylab)
-summary(X)
+str(X)
 X$axDat                           # Display data frame with axis data
 X$hdr[1:10]                       # Header sample
 X$hdr[which(X$hdr=="BITPIX")+1]   # BITPIX value from header
@@ -125,23 +137,23 @@ image(X$imDat, xlab = xlab, ylab = ylab, xaxt = "n", yaxt = "n")
 \dontrun{filename <- "IUElwp25637mxlo.fits"}
 ## or, for local example use
 filename <- system.file("fitsExamples", "IUElwp25637mxlo.fits",
-                        package = "FITSio")  
+                        package = "FITSio")
 
 Y <- readFITS(filename)
-## Look at contents 
-summary(Y)
+## Look at contents
+str(Y)
 Y$colNames
-summary(Y$col)
+str(Y$col)
 Y$hdr[which(Y$hdr=="BITPIX")+1]   # BITPIX value from header
 plot(Y$col[[5]], ylab = "Value", main = Y$colNames[5], type = "l")
 
 ### Simple flat file example
 filename <- system.file("fitsExamples", "2008_03_11_203150.fits",
-                        package = "FITSio")  
-Z <- readFITS(filename) 
-summary(Z)
+                        package = "FITSio")
+Z <- readFITS(filename)
+str(Z)
 Z$colNames
-summary(Z$col)
+str(Z$col)
 attach(Z)
 xc <- which(colNames == "DMJD")
 yc <- which(colNames == "TiltX")

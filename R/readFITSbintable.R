@@ -1,5 +1,5 @@
 `readFITSbintable` <-
-function (zz, hdr) 
+function (zz, hdr)
 {
 ### Reader for FITS BINTABLE arrays
 ###
@@ -13,15 +13,18 @@ function (zz, hdr)
   ## Column units: colUnits
   ## TNULLn, TSCALn, TZEROn, TDISPn as defined by FITS standard
 ### Requires/Used by:
-  ## Requires readFITSheader.r 
+  ## Requires readFITSheader.r
 ###
 ### Refs: http://fits.gsfc.nasa.gov/
-###       Hanisch et al., Astr. Ap. 376, 359-380 (2001) 
+###       Hanisch et al., Astr. Ap. 376, 359-380 (2001)
 ###
 ### A. Harris, Univ. MD Astronomy, 4/22/08
+### Eliminate blanks in TTFORM etc. variables for new header parser
+### AH 7/10/09
+### Fixed apparent problem in padding calculation and read, 9/28/10 AH
 ###
 ### Known incomplete:
-###  * Data types X, C, M, P unimplemented (bit, complex, double complex, 
+###  * Data types X, C, M, P unimplemented (bit, complex, double complex,
 ###      array descriptor)
 ###
   ## Determine array dimensions
@@ -31,11 +34,11 @@ function (zz, hdr)
     ## Get additional memory allocation information
     tmp <- hdr[which(hdr == "PCOUNT") + 1]
     pcount <- ifelse(length(tmp) != 1, 0, as.numeric(tmp))
-    if (pcount != 0) 
+    if (pcount != 0)
         warning("pcount must be 0 in a bintable")
     tmp <- hdr[which(hdr == "GCOUNT") + 1]
     gcount <- ifelse(length(tmp) != 1, 1, as.numeric(tmp))
-    if (gcount != 1) 
+    if (gcount != 1)
         warning("gcount must be 1 in a bintable")
     ## Put array information into vectors
     TFORMn <- character(tfields)
@@ -48,32 +51,32 @@ function (zz, hdr)
     THEAPn <- integer(tfields)
     TDIMn <- character(tfields)
     for (i in 1:tfields) {
-        tmp <- hdr[which(hdr == paste("TFORM", i, sep = "")) + 
-            1]
-        TFORMn[i] <- tmp
-        tmp <- hdr[which(hdr == paste("TTYPE", i, sep = "")) + 
-            1]
+        tmp <- gsub(" ", "", hdr[which(hdr == paste("TFORM", i, sep = "")) +
+            1])
+        TFORMn[i] <- tmp  # strip out spaces
+        tmp <- gsub(" ", "", hdr[which(hdr == paste("TTYPE", i, sep = "")) +
+            1])
         TTYPEn[i] <- ifelse(length(tmp) != 1, "", tmp)
-        tmp <- hdr[which(hdr == paste("TUNIT", i, sep = "")) + 
-            1]
+        tmp <-gsub(" ", "",  hdr[which(hdr == paste("TUNIT", i, sep = "")) +
+            1])
         TUNITn[i] <- ifelse(length(tmp) != 1, "", tmp)
-        tmp <- hdr[which(hdr == paste("TNULL", i, sep = "")) + 
-            1]
+        tmp <- gsub(" ", "", hdr[which(hdr == paste("TNULL", i, sep = "")) +
+            1])
         TNULLn[i] <- ifelse(length(tmp) != 1, NA, as.numeric(tmp))
-        tmp <- hdr[which(hdr == paste("TSCAL", i, sep = "")) + 
-            1]
+        tmp <- gsub(" ", "", hdr[which(hdr == paste("TSCAL", i, sep = "")) +
+            1])
         TSCALn[i] <- ifelse(length(tmp) != 1, 1, as.numeric(tmp))
-        tmp <- hdr[which(hdr == paste("TZERO", i, sep = "")) + 
-            1]
+        tmp <- gsub(" ", "", hdr[which(hdr == paste("TZERO", i, sep = "")) +
+            1])
         TZEROn[i] <- ifelse(length(tmp) != 1, 0, as.numeric(tmp))
-        tmp <- hdr[which(hdr == paste("TDISP", i, sep = "")) + 
-            1]
+        tmp <- gsub(" ", "", hdr[which(hdr == paste("TDISP", i, sep = "")) +
+            1])
         TDISPn[i] <- ifelse(length(tmp) != 1, "", tmp)
-        tmp <- hdr[which(hdr == paste("THEAP", i, sep = "")) + 
-            1]
+        tmp <- gsub(" ", "", hdr[which(hdr == paste("THEAP", i, sep = "")) +
+            1])
         THEAPn[i] <- ifelse(length(tmp) != 1, NA, as.numeric(tmp))
-        tmp <- hdr[which(hdr == paste("TDIM", i, sep = "")) + 
-            1]
+        tmp <- gsub(" ", "", hdr[which(hdr == paste("TDIM", i, sep = "")) +
+            1])
         TDIMn[i] <- ifelse(length(tmp) != 1, "", tmp)
     }
     ## Work out formats and set up storage for each column.
@@ -83,7 +86,7 @@ function (zz, hdr)
     mult <- integer(tfields)
     col <- vector("list", tfields)
     for (i in 1:tfields) {
-        ## Separate multiplier and type.
+        ## Strip spaces, then separate multiplier and type.
         nc <- nchar(TFORMn[i])
         tmp <- substr(TFORMn[i], 1, nc - 1)
         mult[i] <- ifelse(tmp == "", 1, as.numeric(tmp))
@@ -119,14 +122,14 @@ function (zz, hdr)
             btype[i] <- 4
             bsign[i] <- FALSE
         }, stop("X, C, M, P not yet implemented \n"))
-        ## Set up storage arrays: rows = number of table rows, columns = 
+        ## Set up storage arrays: rows = number of table rows, columns =
         ## multiplier (depth) of the cells in each column.  Characters are an
-        ## exception since they return strings. 
+        ## exception since they return strings.
         if (btype[i] == 1) {
             col[[i]] <- array("", dim = c(naxis2, 1))
         }
         else {
-            col[[i]] <- array(switch(btype[i], "", FALSE, NA, 
+            col[[i]] <- array(switch(btype[i], "", FALSE, NA,
                 NA, NA), dim = c(naxis2, mult[i]))
         }
     }
@@ -137,18 +140,17 @@ function (zz, hdr)
                 col[[j]][i, ] <- readChar(zz, nchars = mult[j])
             }
             else {
-                what <- switch(btype[j], character(), logical(), 
+                what <- switch(btype[j], character(), logical(),
                   integer(), numeric(), complex())
-                col[[j]][i, ] <- readBin(zz, what = what, n = mult[j], 
+                col[[j]][i, ] <- readBin(zz, what = what, n = mult[j],
                   size = bsize[j], signed = bsign[j], endian = "big")
             }
         }
     }
     ## Finish reading block
     nbyte <- naxis1 * naxis2
-    nbyte <- ifelse(nbyte%%2880 == 0, 0, (1 - (nbyte/2880)%%1) * 
-        2880)
-    tmp <- readChar(zz, nbyte)
+    nbyte <- ifelse(nbyte%%2880 == 0, 0, 2880 - nbyte%%2880)
+    tmp <- readBin(zz, 'raw', nbyte)
     ## Clean up before returning
     for (i in 1:tfields) {
         ## Apply scaling and offset where appropriate
@@ -156,7 +158,7 @@ function (zz, hdr)
             || TZEROn[i] != 0)) {
             col[[i]] <- (col[[i]]) * TSCALn[i] + TZEROn[i]
         }
-        ## Convert 1D arrays to vectors for easier plotting  
+        ## Convert 1D arrays to vectors for easier plotting
         if (nrow(col[[i]]) == 1 || ncol(col[[i]]) == 1
             || btype[i] <= 2) {
             col[[i]] <- as.vector(col[[i]])
@@ -170,8 +172,8 @@ function (zz, hdr)
             col[[i]] <- unlist(txttmp)
         }
     }
-    ## Return data list: data for each column plus ancillary data.  
-    list(col = col, hdr = hdr, colNames = TTYPEn, colUnits = TUNITn, 
+    ## Return data list: data for each column plus ancillary data.
+    list(col = col, hdr = hdr, colNames = TTYPEn, colUnits = TUNITn,
         TNULLn = TNULLn, TSCALn = TSCALn, TZEROn = TZEROn, TDISPn = TDISPn)
 }
 

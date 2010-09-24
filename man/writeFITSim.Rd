@@ -7,8 +7,8 @@
   Write a FITS image (multi-dimensional numeric array) to disk.
 }
 \usage{
-writeFITSim(X, file = "R.fits", type = "double", 
-bscale = 1, bzero = 0, c1 = NA, c2 = NA, 
+writeFITSim(X, file = "R.fits", type = "double",
+bscale = 1, bzero = 0, c1 = NA, c2 = NA,
 crpixn = NA, crvaln = NA, cdeltn = NA, ctypen = NA, cunitn = NA)
 
 writeFITSim16i(X, file = "R.fits", ...)
@@ -30,18 +30,18 @@ writeFITSim16i(X, file = "R.fits", ...)
     standard meaning.}
   \item{cunitn}{String vector of physical units for axis, FITS standard
     meaning.}
-  \item{\dots}{Arguments as defined above, as needed, for 
+  \item{\dots}{Arguments as defined above, as needed, for
           \code{writeFITSim16i}.}
 }
 \details{
-  \code{writeFITSim} and \code{writeFITSim16i} write multi-dimensional 
+  \code{writeFITSim} and \code{writeFITSim16i} write multi-dimensional
   data arrays and
   header information to FITS-format files.  A single image is a
   two-dimensional array; data cubes contain two dimensions plus one
   additional dimension for each (often velocity) plane.
 
   \code{writeFITSim} writes integer or float data matching the data type in
-  the input array.  \code{writeFITSim16i} scales and shifts 
+  the input array.  \code{writeFITSim16i} scales and shifts
   the input to write
   16-bit integer data with the maximum precision allowed by word
   length.  FITS variables BSCALE and BZERO are automatically updated to
@@ -65,7 +65,7 @@ Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
 \note{
   Graphical FITS viewers such as \emph{fv}
   (\url{http://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
-(\url{http://hea-www.harvard.edu/RD/ds9/}) 
+(\url{http://hea-www.harvard.edu/RD/ds9/})
 have excellent facilities for displaying FITS data, headers, and file
 structure.  Having one or more graphical viewers available will
 prove extremely
@@ -90,10 +90,10 @@ writeFITSim(X, file = "test.fits", c1 = "Test FITS file",
 Z <-  readFITS("test.fits")
 ax1 <- axVec(1, Z$axDat)          # Make axis vector for image
 ax2 <- axVec(2, Z$axDat)
-xlab <- Z$axDat$ctype[1]          
+xlab <- Z$axDat$ctype[1]
 ylab <- paste(Z$axDat$ctype[2], " [", Z$axDat$cunit[2], "]", sep = "")
 image(ax1, ax2, Z$imDat, xlab = xlab, ylab = ylab)
-summary(Z)
+str(Z)
 Z$axDat                           # Display data frame with axis data
 Z$hdr[1:10]                       # Header sample
 Z$hdr[which(Z$hdr=="BITPIX")+1]   # BITPIX value from header
@@ -107,11 +107,11 @@ writeFITSim(X, "test.fits")
 Z <-  readFITS("test.fits")
 dim(Z$imDat[,,2])
 image(Z$imDat[,,2], xaxt = "n", yaxt = "n")
-summary(Z)
+str(Z)
 print(Z$axDat)
 unlink("test.fits")
 
-### Note: either of the writeFITSim() calls here could be replaced 
+### Note: either of the writeFITSim() calls here could be replaced
 ###       with writeFITSim16i() calls with the identical argument.
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
