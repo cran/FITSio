@@ -30,10 +30,10 @@ readFITSheader(zz, maxLines = 5000, fixHdr = 'none')
   needed for very large headers.
 
   \var{fixHdr} attempts to fix headers with non-printing characters,
-  either by removing them with \code{fixHdr = remove}, reading further
+  either by removing them with \code{fixHdr = 'remove'}, reading further
   into the file until 2880 valid characters are present, or by
   substituting spaces for non-printing characters with \code{fixHdr =
-  substitute}.  This option should be used with caution, as non-printing
+  'substitute'}.  This option should be used with caution, as non-printing
   characters should not be in the header in the first place, so this
   option may or may not corrupt the following data.  The default is
   \code{fixHdr = 'none'}.  Partial matching is allowed.
@@ -45,7 +45,7 @@ readFITSheader(zz, maxLines = 5000, fixHdr = 'none')
   by \R.  The header vector has a kind of
   \emph{keyword value keyword value \ldots}
   format, where keywords without values are simply followed by the next
-  keyword.  This means a seach for a keyword will give the corresponding
+  keyword.  This means a search for a keyword will give the corresponding
   value as the next element in the vector; see the Examples.
 }
 \value{
@@ -71,17 +71,18 @@ prove extremely
 useful
 for working with FITS
 files, even when the data are read into \R for further processing.
-\emph{fv} and \emph{SAOImage DS9} are in active devlopement with support for
+\emph{fv} and \emph{SAOImage DS9} are in active development with support for
 unix, Windows, and Mac OS-X operating systems, and are available at no cost.
 }
 
 \seealso{
+  \code{\link{parseHdr}}, the usual complement to \code{readFITSheader};
   \code{\link{readFITS}}, \code{\link{readFITSarray}},
   \code{\link{readFITSbintable}}, \code{\link{file}}
 }
 
 \examples{
-require("FITSio")
+require(FITSio)
 ## Make test image with axis information, write to disk
 Z <- matrix(1:15, ncol = 3)
 writeFITSim(Z, file = "test.fits", c1 = "Test FITS file",
@@ -91,7 +92,8 @@ writeFITSim(Z, file = "test.fits", c1 = "Test FITS file",
 ## Read back in
 ## Open file, read header and array, close file and delete.
     zz <- file(description = "test.fits", open = "rb")
-    hdr <- readFITSheader(zz)
+    header <- readFITSheader(zz)
+    hdr <- parseHdr(header)
     D <- readFITSarray(zz, hdr)
     close(zz)
     hdr[1:10]                       # Header sample

@@ -8,15 +8,19 @@
   creating code to read more complex FITS files.
 }
 \usage{
-readFITS(file = "R.fits", hdu = 1, phdu = 1, ...)
+readFITS(file = "R.fits", hdu = 1, maxLines = 5000,
+fixHdr = c('none', 'remove', 'substitute'), phdu = 1)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{file}{existing FITS file name.}
-  \item{hdu}{position of Header and Data Unit (HDU) in FITS file: 1 for
+  \item{file}{Existing FITS file name.}
+  \item{hdu}{Position of Header and Data Unit (HDU) in FITS file: 1 for
     the first HDU, 2 for the second HDU, etc.}
-  \item{phdu}{rarely needed; see Details.}
-  \item{...}{pass variables (e.g. \code{fixHdr}) to reads; see Details.}
+  \item{maxLines}{Integer: maximum number of header lines to read.}
+  \item{fixHdr}{Deal with (illegal) nonprinting characters in the
+    header.}
+  \item{phdu}{Rarely needed; see Details.}
+
 }
 \details{
   \code{readFITS} is a simple but complete FITS file reader,
@@ -33,18 +37,18 @@ readFITS(file = "R.fits", hdu = 1, phdu = 1, ...)
   example that includes file opening and closing.
 
   \var{phdu} = 0 forces a read of a secondary HDU in a
-  fairly pathalogical case (specifically: indicating
+  fairly pathological case (specifically: indicating
   a read of a secondary HDU by setting NAXISn = 0 for n > 1, but NAXIS != 0
   and NAXIS1 != 0.)  This does not seem to be forbidden by the FITS
   standard but would be unlikely coding.
 
   \var{...} passes additional values for file reading.  The only use at
-  present is to pass values to \var{fixHdr} in \code{readFITSheader}.
+  present is to pass values to \var{fixHdr} in \code{\link{readFITSheader}}.
   \var{fixHdr} attempts to fix headers with non-printing characters,
-  either by removing them with \code{fixHdr = remove}, reading further
+  either by removing them with \code{fixHdr = 'remove'}, reading further
   into the file until 2880 valid characters are present, or by
   substituting spaces for non-printing characters with \code{fixHdr =
-  substitute}.  This option should be used with caution, as non-printing
+  'substitute'}.  This option should be used with caution, as non-printing
   characters should not be in the header in the first place, so this
   option may or may not corrupt the following data.  The default is
   \code{fixHdr = 'none'}.  Partial matching is allowed.
@@ -55,10 +59,12 @@ readFITS(file = "R.fits", hdu = 1, phdu = 1, ...)
 }
 
 \value{
-  Return values from \code{readFITS} are a list depending on the data type:
+  Return values from \code{readFITS} are in a list. Depending on the
+  data type, list entries are:
+  \item{header}{Vector with input file header up to END statement.}
+  \item{hdr}{Vector with \code{keyword = value} pairs parsed from header.}
   \item{imDat}{Data array (image).}
   \item{axDat}{Data frame with axis scaling and labels (image).}
-  \item{hdr}{Vector with parsed header (all).}
   \item{col}{Data from each column (bintable).}
   \item{colNames}{Vector of column names, TTYPEn FITS variable (bintable).}
   \item{colUnits}{Vector of column units, TUNITn FITS variable (bintable).}
@@ -88,7 +94,7 @@ prove extremely
 useful
 for working with FITS
 files, even when the data are read into \R for further processing.
-\emph{fv} and \emph{SAOImage DS9} are in active devlopement
+\emph{fv} and \emph{SAOImage DS9} are in active development
 with support for
 unix, Windows, and Mac OS-X operating systems, and are available at no cost.
 
@@ -102,10 +108,11 @@ directly into an \R data frame.
 \code{\link{readFITSbintable}},
 \code{\link{readFITSheader}},
 \code{\link{readFrameFromFITS}},
+\code{\link{modifyHeader}},
 \code{\link{image}}, \code{\link{par}}
 }
 \examples{
-require("FITSio")
+require(FITSio)
 
 ### Image example
 ## Make test image with axis information, write to disk

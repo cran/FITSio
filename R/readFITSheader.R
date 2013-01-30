@@ -1,4 +1,4 @@
-`readFITSheader` <-
+readFITSheader <-
 function (zz, maxLines = 5000, fixHdr = 'none')
 {
 ### Function gets FITS header
@@ -7,29 +7,32 @@ function (zz, maxLines = 5000, fixHdr = 'none')
   ## File handle: zz
   ## Maximum number of header lines to read: maxLines
 ### Returns:
-  ## Vector with parsed header
-### Requires/Used by:
-  ## Requires .fitsHdrParse.r
+  ## Character vector with header
 ###
 ### Refs: http://fits.gsfc.nasa.gov/
 ###       Hanisch et al., Astr. Ap. 376, 359-380 (2001)
 ###
-### A. Harris, Univ. MD Astronomy, 3/21/08
-  ## Added header length check 9/22/10 AH
-  ## Added header fixes (remove/replace) 9/25/2010 AH
+### Modified version of readFITSheader.R from 3/21/08 through 9/25/2010
+### A. Harris, Univ. MD Astronomy, 12/30/12
 ###
-    foundEnd <- FALSE
-    hdr <- character()
-    i <- 0
-    maxHdrs <- maxLines/36  # max number of header units to read
-    while (!foundEnd) {
-        ## Each header is a set of 36 80-column card images
-        switch(pmatch(fixHdr, c('none', 'remove', 'substitute'), nomatch=4),
+
+    ## Each header is a set of 36 80-column card images
+    num <- 36      # number of card images in block
+    cols <- 80     # columns per card
+    maxHdrs <- maxLines/num  # max number of header units to read
+    header <- 'dummy start line'
+    image <- character(num)       # vector for card images
+    start <- seq(1, 2880, by=80)  # start character index for images
+
+    for (i in 1:maxHdrs) {
+        # Read 36*80 = 2880 characters at a time from file header, with
+        # different modes to accomodate standard header problems
+        switch(pmatch(fixHdr[1], c('none', 'remove', 'substitute'), nomatch=4),
                { # header is ok
                     inpString <- readChar(zz, 2880)
                     if (nchar(inpString) != 2880) {
                         txt <- paste('*** Header problem:', nchar(inpString),
-                                     'characters instead of 2880; try option fixHdr *** \n')
+                        'characters instead of 2880; try option fixHdr *** \n')
                         close(zz)
                         stop(txt)
                     }
@@ -43,7 +46,7 @@ function (zz, maxLines = 5000, fixHdr = 'none')
                        if (nbytes > 0) {
                            inpBin <- inpBin[-idxBad]
                            txt <- paste('*** Removed', length(idxBad),
-                                        'non-printing characters in header ***\n')
+                                    'non-printing characters in header ***\n')
                            cat(txt)
                        }
                        inpString <- rawToChar(inpBin)
@@ -60,83 +63,31 @@ function (zz, maxLines = 5000, fixHdr = 'none')
                     }
                     inpString <- rawToChar(inpBin)
                 }, {
-                    txt <- '*** fixHdr must be one of: none, remove, or substitute ***\n'
                     close(zz)
-                    stop(txt)
+                    stop('*** Invalid fixHdr option ***\n')
                 }
-
         )
-        tmp <- .fitsHdrParse(inpString)
-        hdr <- c(hdr, tmp$hdrInfo)
-        foundEnd <- tmp$foundEnd
-        if (i > maxHdrs)
-            stop("Haven't found END in header after ", maxLines,
-                " header lines")
-        i <- i + 1
-    }
-    return(hdr)
-}
 
-`.fitsHdrParse` <-
-function (hdr_dat)
-{
-### Function parses FITS header
-### (preceeded by . to hide it from users in package build)
-###
-### Takes:
-  ## hdr_dat variable from readFITSheader.r
-### Returns:
-  ## Character vector: hdrInfo
-  ## Logical: foundEnd indicating end of header
-### Requires/Used by:
-  ## Used by readFITSheader.r
-###
-### A. Harris, Univ. MD Astronomy, 3/20/08
-### Updated to properly parse and preserve values in quotes (but
-### deletes leading and trailing blanks in quotes to preserve compatibility
-### with existing code)
-### AH 7/11/09
-###
-    ## Break header data into card images,
-    ## then separate comments and break at keyword = value
-    num <- 36      # number of card images
-    z <- character(2*num)  # keyword, value
-    i <- 0
-    for (j in 1:num) {
-        start <- (j - 1) * 80 + 1
-        end <- start + 79
-        image <- substr(hdr_dat, start, end)
-        if (toupper(substr(image, 1, 7)) != 'COMMENT' &&
-            toupper(substr(image, 1, 7)) != 'HISTORY' &&
-            substr(gsub(" ", "", image), 1, 1) != '/' &&
-            gsub(" ", "", image) != "") {
+        # Break header data into card images,
+        for (j in 1:num) {
+            image[j] <- substr(inpString, start[j], start[j]+79)
+        }
 
-            i <- i+1
-            idx <- i*2
-            # Parse keyword and value from each line, remove trailing blanks
-            # two cases: one with value in quotes (preserve string), one not
-            tmp = unlist(strsplit(image, '\''))
-            if (length(tmp) == 1) {  # for value not in quotes
-                tmp <- unlist(strsplit(strsplit(tmp, '/')[[1]][1], '='))
-                z[idx-1] <- gsub(' ', '', tmp[1])
-                z[idx] <- gsub(' ', '', tmp[2])
-            } else {                # for value in quotes
-                tmp2 = unlist(strsplit(tmp[1], '='))[1]
-                z[idx-1] <- gsub(' ', '', tmp2)
-                z[idx-1] <- gsub("=", "", z[idx-1])
-                z[idx] <- sub(' +$', '', tmp[2])
-                z[idx] <- sub('^ +', '', z[idx])
-            }
+        # Look for END card; if found, clean up and return header,
+        # else add images to header
+        idx <- grep('^ *END +', image, ignore.case=TRUE)
+        if (length(idx) > 0) {
+            image <- image[-(idx:num)]  # trim END and trailing blank cards
+            header <- c(header, image)  # update header
+            header <- header[-1]        # remove initial dummy line
+            return(header)              # return
+        } else {
+            header <- c(header, image)  # update header
         }
     }
 
-    # trim off unused elements at end
-    z <- z[1:(i*2)]
-
-    ## Check for end in header
-    foundEnd <- as.logical(length(which(z == "END")))
-    if (foundEnd) z <- z[1:which(z == "END")]
-
-    ## Return
-    list(hdrInfo = z, foundEnd = foundEnd)
+    # Return on error -- no END
+    stop("Haven't found END in header after ", maxLines,
+         " header lines")
 }
+

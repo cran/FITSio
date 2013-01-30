@@ -1,5 +1,5 @@
-`writeFITSim16i` <-
-function (X, file = 'R.fits', ...) 
+writeFITSim16i <-
+function (X, file = 'R.fits', ...)
 {
 ### Utility writes FITS image after converting to single integer words
 ### for more compact data files
@@ -12,17 +12,18 @@ function (X, file = 'R.fits', ...)
   ## Writes FITS file to disk
 ### Requires/Used by:
   ## Requires writeFITSim.r
-###  
-### A. Harris, Univ. MD Astronomy, 4/22/08, 7/24/08
+###
+### A. Harris, Univ. MD Astronomy, 4/22/08, 1/29/13
 ###
     ## Set scale and offset to use maximum range
-    scale <- (2^16 - 2)/(max(X) - min(X))
-    offset <- (-2^15 + 1)/scale - min(X)
-    ## Scale and offset data, convert to integer array
-    X <- (X + offset) * scale
+    offset <- mean(range(X, na.rm=TRUE))
+    X <- X - offset
+    scale <- (2^16 - 2)/(2*max(X, na.rm=TRUE))
+    X <- X*scale
+    ## convert to integers
     X <- array(as.integer(X), dim = dim(X))
     ## Write data
-    writeFITSim(X, file, type = "single", bscale = 1/scale, 
-        bzero = -offset, ...)
+    writeFITSim(X, file, type = "single", bscale = 1/scale,
+        bzero = offset, ...)
 }
 

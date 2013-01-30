@@ -1,5 +1,6 @@
-`readFITS` <-
-function (file = "R.fits", hdu = 1, phdu = 1, ...)
+readFITS <-
+function (file = "R.fits", hdu = 1, maxLines = 5000,
+          fixHdr = c('none', 'remove', 'substitute'), phdu = 1)
 {
 ### Simple reader for FITS bintable, array, and image files
 ### Also serves as template for mulitple header and data unit reads
@@ -19,10 +20,13 @@ function (file = "R.fits", hdu = 1, phdu = 1, ...)
 ###
 ### A. Harris, Univ. MD Astronomy, 4/22/08
   ## Added multiple image reads 9/22/10 AH
+  ## Updated for full header and new header parsing 12/31/12 AH
 ###
     ## Open file, read primary header unit
     zz <- file(file, "rb")
-    hdr <- readFITSheader(zz, ...)
+    header <- readFITSheader(zz, maxLines = maxLines, fixHdr = fixHdr[1])
+    hdr <- parseHdr(header)
+
     ## Determine number of array dimensions, select appropriate extension
     tmp <- hdr[which(hdr == "NAXIS") + 1]
     if (tmp == "")
@@ -36,7 +40,8 @@ function (file = "R.fits", hdu = 1, phdu = 1, ...)
         D <- readFITSarray(zz, hdr)
         if (hdu > 1) {
             for (i in 2:hdu) {    # Brute-force read to hdu-th header-data unit
-                hdr <- readFITSheader(zz, ...)
+                header <- readFITSheader(zz, maxLines = maxLines, fixHdr = fixHdr[1])
+                hdr <- parseHdr(header)
                 switch(tolower(hdr[which(hdr == "XTENSION") + 1]),
                        bintable = {
                            D <- readFITSbintable(zz, hdr)
@@ -46,11 +51,13 @@ function (file = "R.fits", hdu = 1, phdu = 1, ...)
             }
         }
         close(zz)
+        D$header <- header
         return(D)
     }
     else {                    # Data are off an extension header
         for (i in 1:hdu) {    # Brute-force read to hdu-th header-data unit
-            hdr <- readFITSheader(zz, ...)
+            header <- readFITSheader(zz, maxLines = maxLines, fixHdr = fixHdr[1])
+            hdr <- parseHdr(header)
             switch(tolower(hdr[which(hdr == "XTENSION") + 1]),
                 bintable = {
                   D <- readFITSbintable(zz, hdr)
@@ -59,6 +66,7 @@ function (file = "R.fits", hdu = 1, phdu = 1, ...)
                 }, stop("Current version supports only bintable and image"))
         }
         close(zz)
+        D$header <- header
         return(D)
     }
 }

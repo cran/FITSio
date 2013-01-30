@@ -1,5 +1,18 @@
-# Default NAMESPACE created by R
-# Remove the previous line if you edit this file
-
-# Export all names
-exportPattern(".")
+export(
+    addComment,
+    addHistory,
+    addKwv,
+    axVec,
+    closeHdr,
+    delKwv,
+    makeFITSimHdr,
+    modVal,
+    newKwv,
+    parseHdr,
+    readFITS,
+    readFITSarray,
+    readFITSbintable,
+    readFITSheader,
+    readFrameFromFITS,
+    writeFITSim,
+    writeFITSim16i)

@@ -10,16 +10,22 @@ readFITSbintable(zz, hdr)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{zz}{file handle; see Example.}
-  \item{hdr}{vector of header information from \code{readFITSheader}.}
+  \item{zz}{File handle; see Example.}
+  \item{hdr}{Header card images, raw or parsed.}
 }
 \details{
   \code{readFITSbintable} reads the data from the binary table part of a FITS
-  Header and Data Unit containing binary table data.  The header must be
-  read first by \code{readFITSheader} to provide the variable \var{hdr}.
-  Binary tables are multi-column files with one or more rows.  Each
+  Header and Data Unit (hdu) containing binary table data.  The header must be
+  read first by \code{\link{readFITSheader}}; either this header or the
+  parsed version from \code{\link{parseHdr}} are valid for the \var{hdr}
+  variable.  Binary tables are multi-column files with one or more rows.  Each
   column has an individual data type and number of entries per cell
   (i.e., a cell may contain a scalar or vector).
+
+  64-bit integers are read as pairs of 32-bit integers, for a vector
+  twice the length of most other vectors.  Files read properly, but
+  reconstructing the 64-bit representation is untested.  The
+  CRAN package \code{int64} may be of use here.
 
   Binary table bit, complex, and array
   descriptor data types are not implemented in this release due to a lack
@@ -63,7 +69,7 @@ unix, Windows, and Mac OS-X operating systems, and are available at no cost.
 }
 
 \examples{
-require("FITSio")
+require(FITSio)
 
 ## Either download example file from
 ## <http://fits.gsfc.nasa.gov/fits_samples.html>
@@ -75,13 +81,15 @@ filename <- system.file("fitsExamples", "IUElwp25637mxlo.fits",
 
 ## Open file, read header and table, close file.
 zz <- file(description = filename, open = "rb")
-hdr <- readFITSheader(zz) # read primary header
-hdr <- readFITSheader(zz) # read extension header
-D <- readFITSbintable(zz, hdr)
+header0 <- readFITSheader(zz) # read primary header
+header <- readFITSheader(zz) # read extension header
+D <- readFITSbintable(zz, header)
 close(zz)
 
 ## Look at contents
 str(D)
+str(header)
+str(parseHdr(header))
 D$hdr[which(D$hdr=="BITPIX")+1]   # BITPIX value from header
 D$colNames
 plot(D$col[[5]], ylab = "Value", main = D$colNames[5], type = "l")

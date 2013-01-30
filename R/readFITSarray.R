@@ -1,4 +1,4 @@
-`readFITSarray` <-
+readFITSarray <-
 function (zz, hdr)
 {
 ### Reader for FITS multidimentsional arrays, including 2D images
@@ -20,18 +20,22 @@ function (zz, hdr)
 ### Changed defaults for missing CRPIX, CRVAL, and CDELT from NA to 1 (L65-71)
 ### AH 7/11/09
 ### Fixed apparent problem in padding calculation and read, 9/28/10 AH
-###
+### Updated for new header handling, 12/30/12 AH
+
+    ## Parse header if full header is supplied instead of parsed version
+    if (nchar(hdr[1])==80) hdr <- parseHdr(hdr)
+
     ## Determine number of array dimensions
     naxis <- as.numeric(hdr[which(hdr == "NAXIS") + 1])
     ## Find the right data type
     switch(hdr[which(hdr == "BITPIX") + 1], "-64" = {
         bsize <- 8
         btype <- numeric()
-        bsign <- FALSE
+        bsign <- TRUE
     }, "-32" = {
         bsize <- 4
         btype <- numeric()
-        bsign <- FALSE
+        bsign <- TRUE
     }, "32" = {
         bsize <- 4
         btype <- integer()
@@ -77,10 +81,9 @@ function (zz, hdr)
             1]
         CUNITn[i] <- ifelse(length(tmp) != 1, "", tmp)
     }
-    ## Read data into array.  Column data increments faster than row
-    ## data.  To get back to [row, column] notation for 2D array, D <- t(D).
+    ## Read data into array.
     D <- array(readBin(zz, what = btype, n = numwords, size = bsize,
-        signed = bsign, endian = "big"), dim = NAXISn)
+                       signed = bsign, endian = "big"), dim = NAXISn)
     ## Finish reading block
     nbyte <- numwords * bsize
     nbyte <- ifelse(nbyte%%2880 == 0, 0, 2880 - nbyte%%2880)
@@ -95,10 +98,9 @@ function (zz, hdr)
     if (BSCALE != 1 || BZERO != 0)
         D <- D * BSCALE + BZERO
     ## Make data frame with axis data
-    axDat <- data.frame(CRPIXn, CRVALn, CDELTn, dim(D), CTYPEn,
-        CUNITn)
-    names(axDat) <- c("crpix", "crval", "cdelt", "len", "ctype",
-        "cunit")
+    axDat <- data.frame(crpix=CRPIXn, crval=CRVALn, cdelt=CDELTn,
+                        len=dim(D), ctype=CTYPEn, cunit=CUNITn,
+                        stringsAsFactors=FALSE)
     ## Return structure with data and image information
     list(imDat = D, axDat = axDat, hdr = hdr)
 }

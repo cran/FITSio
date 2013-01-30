@@ -1,3 +1,46 @@
+New in FITSio_2.0-0
+
+Added options for modifying and editing headers.
+
+A. Harris 2013-01-28
+
+***************************
+New in FITSio_1.3-1
+
+Added TFORMn type "K" for 64-bit signed integers in readFITSbintable.
+	This returns 32-bit integers in array that is twice as long as the
+	number of rows in the bintable.
+
+Eliminated parsing on zeroes for character strings in readFITSbintable (a
+	bug).
+
+A. Harris 2012-10-27
+
+***************************
+New in FITSio_1.3-0
+
+Added an option to enter axis data with a data frame (likely a perhaps
+	edited version of a readFITS axDat) in writeFITSim and
+	writeFITSim16i.  If present, this data frame takes priority over
+	entries for individual vectors.
+Changed writeFITSim16i to ignore NAs in scaling.
+
+A. Harris 2012-05-22
+
+***************************
+
+New in FITSio_1.2-1
+
+Changed dataframe with crval etc. so the strings (e.g. ctype) are not
+	converted to factors.  This makes it easier to edit those variable
+	names.
+Updated comment string in FITS headers that references the software that
+	wrote the file.
+
+A. Harris 2012-01-14
+
+***************************
+
 New in FITSio_1.2-0
 
 Fixed readFITS so it can read arrays (images) following a primary hdu that

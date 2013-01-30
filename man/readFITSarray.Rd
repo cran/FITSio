@@ -10,19 +10,22 @@ readFITSarray(zz, hdr)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{zz}{file handle; see Example.}
-  \item{hdr}{vector of header information from \code{readFITSheader}.}
+  \item{zz}{File handle; see Example.}
+  \item{hdr}{Header card images, raw or parsed.}
 }
 \details{
   \code{readFITSarray} reads the data from the image part of a FITS
-  Header and Data Unit containing image data.  The header must be
-  read first by \code{readFITSheader} to provide the variable \var{hdr}.
+  Header and Data Unit (hdu) containing image data.  The header must be
+  read first by \code{\link{readFITS}} or \code{\link{readFITSheader}};
+  either this header or the
+  parsed version from \code{\link{parseHdr}} are valid for the \var{hdr}
+  variable.
 }
 \value{
   A list containing
   \item{imDat}{Data array.}
   \item{axDat}{Data frame with axis scaling and labels.}
-  \item{hdr}{Vector with parsed header.}
+  \item{hdr}{Vector with the parsed header.}
 }
 
 \references{
@@ -56,18 +59,20 @@ unix, Windows, and Mac OS-X operating systems, and are available at no cost.
 }
 
 \examples{
-    require("FITSio")
+    require(FITSio)
     ## Make a test file.
     Z <- matrix(1:15, ncol = 3)
     writeFITSim(Z, "test.fits")
     ## Open file, read header and array, close file and delete.
     zz <- file(description = "test.fits", open = "rb")
-    hdr <- readFITSheader(zz)  # image data off primary header
-    D <- readFITSarray(zz, hdr)
+    header <- readFITSheader(zz)  # image data off primary header
+    D <- readFITSarray(zz, header)
     close(zz)
-    ## Look at data
+    ## Look at data list, header file, and parsed header
     str(D)
     image(D$imDat)
+    str(header)
+    str(parseHdr(header))
     ## Delete test file
     unlink("test.fits")
 }

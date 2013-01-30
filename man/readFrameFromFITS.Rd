@@ -53,7 +53,7 @@ unix, Windows, and Mac OS-X operating systems, and are available at no cost.
 
 \seealso{\code{\link{readFITS}}}
 \examples{
-require("FITSio")
+require(FITSio)
 
 ## Either download example file from
 ## <http://fits.gsfc.nasa.gov/fits_samples.html>

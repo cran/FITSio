@@ -17,8 +17,8 @@ defined by the International Astronomical Union's FITS Working Group.
 \tabular{ll}{
 Package: \tab FITSio\cr
 Type: \tab Package\cr
-Version: \tab 1.2-0\cr
-Date: \tab 2010-09-28\cr
+Version: \tab 2.0-0\cr
+Date: \tab 2013-01-30\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -61,13 +61,14 @@ Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
 }
 \keyword{file}
 \examples{
-require("FITSio")
+require(FITSio)
 ## Make test image with axis information, write to disk
 Z <- matrix(1:15, ncol = 3)
 writeFITSim(Z, file = "test.fits", c1 = "Test FITS file",
             crpix = c(1,1), crvaln = c(10, 100), cdeltn = c(8, 2),
             ctypen = c("Distance", "Time"),
             cunitn = c("Furlongs", "Fortnights"))
+
 ## Read image back and display
 X <-  readFITS("test.fits")
 ax1 <- axVec(1, X$axDat)          # Make axis vector for image
@@ -79,5 +80,14 @@ str(X)
 X$axDat                           # Display data frame with axis data
 X$hdr[1:10]                       # Header sample
 X$hdr[which(X$hdr=="BITPIX")+1]   # BITPIX value from header
-unlink("test.fits")
+
+### Read back in, modify data, header, and axis data information,
+## then write modified version as new file
+Z <-  readFITS("test.fits")
+  Z$imDat <- Z$imDat + 300
+  Z$header <- addKwv('SCALE', 1.03, 'test header mod', header=Z$header)
+  # Z$axDat <- edit(Z$axDat)  # interactive edit
+  Z$axDat$cdelt[2] <- 20
+writeFITSim(Z$imDat, file='test_modified.fits', axDat=Z$axDat, header=Z$header)
+
 }
