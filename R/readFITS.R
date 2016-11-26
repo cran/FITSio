@@ -21,6 +21,7 @@ function (file = "R.fits", hdu = 1, maxLines = 5000,
 ### A. Harris, Univ. MD Astronomy, 4/22/08
   ## Added multiple image reads 9/22/10 AH
   ## Updated for full header and new header parsing 12/31/12 AH
+  ## Added ASCII table option 11/24/2016 AH
 ###
     ## Open file, read primary header unit
     zz <- file(file, "rb")
@@ -63,6 +64,8 @@ function (file = "R.fits", hdu = 1, maxLines = 5000,
                   D <- readFITSbintable(zz, hdr)
                 }, image = {
                   D <- readFITSarray(zz, hdr)
+                }, table = {
+                  D <- readFITStable(zz, hdr)
                 }, stop("Current version supports only bintable and image"))
         }
         close(zz)

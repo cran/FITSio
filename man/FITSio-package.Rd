@@ -9,7 +9,7 @@ FITS, the Flexible
 Image Transport System, is
 a standard data format for astronomy.
 This package contains
-functions to read files with FITS file image and binary table formats
+functions to read files with FITS file image and binary and ASCII table formats
 and to write FITS image files.  The functions comply with the standards
 defined by the International Astronomical Union's FITS Working Group.
 }
@@ -17,8 +17,8 @@ defined by the International Astronomical Union's FITS Working Group.
 \tabular{ll}{
 Package: \tab FITSio\cr
 Type: \tab Package\cr
-Version: \tab 2.0-0\cr
-Date: \tab 2013-01-30\cr
+Version: \tab 2.1-0\cr
+Date: \tab 2016-11-24\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -45,6 +45,7 @@ A set of mid-level functions enables reading files with
 combinations of HDUs: \code{readFITSheader} reads headers,
 \code{readFITSarray} reads image extensions, and
 \code{readFITSbintable} reads binary table extensions.
+\code{readFITStable} reads ASCII table extensions.
 \code{readFITS} and \code{readFrameFromFITS} invoke these functions to
 do the actual reading.
 

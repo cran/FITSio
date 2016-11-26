@@ -25,7 +25,7 @@ fixHdr = c('none', 'remove', 'substitute'), phdu = 1)
 \details{
   \code{readFITS} is a simple but complete FITS file reader,
   automatically detecting image and binary table data extensions
-  (ASCII tables and random groups are
+  (random groups are
   not supported in this
   release).  It reads a single Header and Data Unit
   (HDU) pair from a file and returns a list with data, header, and axis
@@ -65,13 +65,17 @@ fixHdr = c('none', 'remove', 'substitute'), phdu = 1)
   \item{hdr}{Vector with \code{keyword = value} pairs parsed from header.}
   \item{imDat}{Data array (image).}
   \item{axDat}{Data frame with axis scaling and labels (image).}
+  \item{F}{Data frame containing a table (table).}
   \item{col}{Data from each column (bintable).}
-  \item{colNames}{Vector of column names, TTYPEn FITS variable (bintable).}
-  \item{colUnits}{Vector of column units, TUNITn FITS variable (bintable).}
+  \item{colNames}{Vector of column names, TTYPEn FITS variable
+  (bintable, table).}
+  \item{colUnits}{Vector of column units, TUNITn FITS variable
+  (bintable, table).}
   \item{TNULLn}{Vector of undefined value definitions, FITS variable
-        (bintable).}
-  \item{TSCALn}{Vector of multipliers for scaling, FITS variable (bintable).}
-  \item{TZEROn}{Vector of zeros for scaling, FITS variable (bintable).}
+        (bintable, table).}
+  \item{TSCALn}{Vector of multipliers for scaling, FITS variable
+  (bintable, table).}
+  \item{TZEROn}{Vector of zeros for scaling, FITS variable (bintable, table).}
   \item{TDISPn}{Vector of format information, FITS variable (bintable).}
 
 }
