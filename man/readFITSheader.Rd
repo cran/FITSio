@@ -56,15 +56,15 @@ readFITSheader(zz, maxLines = 5000, fixHdr = 'none')
 \references{
 Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
 
-\url{http://fits.gsfc.nasa.gov/}
+\url{https://fits.gsfc.nasa.gov/}
 }
 
 \author{Andrew Harris}
 
 \note{
   Graphical FITS viewers such as \emph{fv}
-  (\url{http://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
-(\url{http://hea-www.harvard.edu/RD/ds9/})
+  (\url{https://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
+(\url{http://ds9.si.edu/})
 have excellent facilities for displaying FITS data, headers, and file
 structure.  Having one or more graphical viewers available will
 prove extremely
@@ -85,20 +85,20 @@ unix, Windows, and Mac OS-X operating systems, and are available at no cost.
 require(FITSio)
 ## Make test image with axis information, write to disk
 Z <- matrix(1:15, ncol = 3)
-writeFITSim(Z, file = "test.fits", c1 = "Test FITS file",
+filename <- paste(tempdir(), "test.fits", sep="")
+writeFITSim(Z, file = filename, c1 = "Test FITS file",
             crpix = c(1,1), crvaln = c(10, 100), cdeltn = c(8, 2),
             ctypen = c("Distance", "Time"),
             cunitn = c("Furlongs", "Fortnights"))
 ## Read back in
-## Open file, read header and array, close file and delete.
-    zz <- file(description = "test.fits", open = "rb")
+## Open file, read header and array.
+    zz <- file(description = filename, open = "rb")
     header <- readFITSheader(zz)
     hdr <- parseHdr(header)
     D <- readFITSarray(zz, hdr)
     close(zz)
     hdr[1:10]                       # Header sample
     hdr[which(hdr=="BITPIX")+1]   # BITPIX value from header
-    unlink("test.fits")
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the

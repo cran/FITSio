@@ -33,15 +33,15 @@ readFITStable(zz, hdr)
 \references{
 Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
 
-\url{http://fits.gsfc.nasa.gov/}
+\url{https://fits.gsfc.nasa.gov/}
 }
 
 \author{Andrew Harris}
 
 \note{
   Graphical FITS viewers such as \emph{fv}
-  (\url{http://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
-(\url{http://hea-www.harvard.edu/RD/ds9/})
+  (\url{https://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
+(\url{http://ds9.si.edu/})
 have excellent facilities for displaying FITS data, headers, and file
 structure.  Having one or more graphical viewers available will
 prove extremely

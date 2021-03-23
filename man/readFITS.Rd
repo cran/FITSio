@@ -13,7 +13,7 @@ fixHdr = c('none', 'remove', 'substitute'), phdu = 1)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{file}{Existing FITS file name.}
+  \item{file}{Existing FITS file name, or remote file; see examples.}
   \item{hdu}{Position of Header and Data Unit (HDU) in FITS file: 1 for
     the first HDU, 2 for the second HDU, etc.}
   \item{maxLines}{Integer: maximum number of header lines to read.}
@@ -83,15 +83,15 @@ fixHdr = c('none', 'remove', 'substitute'), phdu = 1)
 \references{
 Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
 
-\url{http://fits.gsfc.nasa.gov/}}
+\url{https://fits.gsfc.nasa.gov/}}
 
 \author{Andrew Harris}
 
 \note{
 
   Graphical FITS viewers such as \emph{fv}
-(\url{http://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
-(\url{http://hea-www.harvard.edu/RD/ds9/})
+(\url{https://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
+(\url{http://ds9.si.edu/})
 have excellent facilities for displaying FITS data, headers, and file
 structure.  Having one or more graphical viewers available will
 prove extremely
@@ -121,12 +121,13 @@ require(FITSio)
 ### Image example
 ## Make test image with axis information, write to disk
 Z <- matrix(1:15, ncol = 3)
-writeFITSim(Z, file = "test.fits", c1 = "Test FITS file",
+filename <- paste(tempdir(), "test.fits", sep="")
+writeFITSim(Z, file = filename, c1 = "Test FITS file",
             crpix = c(1,1), crvaln = c(10, 100), cdeltn = c(8, 2),
             ctypen = c("Distance", "Time"),
             cunitn = c("Furlongs", "Fortnights"))
 ## Read back in and display
-X <-  readFITS("test.fits")
+X <-  readFITS(filename)
 ax1 <- axVec(1, X$axDat)          # Make axis vector for image
 ax2 <- axVec(2, X$axDat)
 xlab <- X$axDat$ctype[1]
@@ -136,14 +137,13 @@ str(X)
 X$axDat                           # Display data frame with axis data
 X$hdr[1:10]                       # Header sample
 X$hdr[which(X$hdr=="BITPIX")+1]   # BITPIX value from header
-unlink("test.fits")
 ## No axis scale markings
 image(X$imDat, xlab = xlab, ylab = ylab, xaxt = "n", yaxt = "n")
 
 ### Binary table examples
 ## Bintable with one row and differently multi-dimensional columns
 ## Either download example file from
-## <http://fits.gsfc.nasa.gov/fits_samples.html>
+## <https://fits.gsfc.nasa.gov/fits_samples.html>
 ## and use
 \dontrun{filename <- "IUElwp25637mxlo.fits"}
 ## or, for local example use
@@ -173,7 +173,16 @@ ylab <- paste(colNames[yc], " [", colUnits[yc], "]", sep = "")
 plot(col[[xc]], col[[yc]], xlab = xlab, ylab = ylab, type = "l")
 detach(Z)
 
+### Read FITS file directly from URL (thanks to Bi Chen Wu)
+\dontrun{
+  require(magrittr)  # part of tidyverse,
+# https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html
+fits = fits_url %>% 
+  RETRY(url=.,verb="GET",times=20,quiet=T) %>% 
+  content(type="raw") %>% 
+  rawConnection %>% 
+  readFITS
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
+}
+
 \keyword{file}

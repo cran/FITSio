@@ -26,7 +26,7 @@ Character vector to write to FITS file as header.
 \references{
 Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
 
-\url{http://fits.gsfc.nasa.gov/}
+\url{https://fits.gsfc.nasa.gov/}
 }
 \author{
 A. Harris

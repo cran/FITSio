@@ -5,10 +5,10 @@ function(comment, headerName) {
 # A. Harris 2012.10.13
     # check for valid inputs, stop otherwise
     if (!is.character(comment)) stop('*** Comment must be a string ***')
-    comment <- strtrim(comment, 72)
+    comment <- strtrim(comment, 70)
 
     # modify header
-    headerName <- c(headerName, sprintf('COMMENT %-72s', comment))
+    headerName <- c(headerName, sprintf('COMMENT   %-70s', comment))
 
     # return modified structure
     headerName

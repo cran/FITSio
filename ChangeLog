@@ -1,4 +1,43 @@
 ***************************
+New in FITSio_2.1-5
+
+Added read for remote as well as local files, following suggested code
+from Bi Cheng Wu. 
+
+A. Harris 2021-03-20
+
+***************************
+New in FITSio_2.1-4
+
+Added read for bit arrays with lengths 8, 16, 24, and 32.  Returns these as
+unsigned integers.
+
+A. Harris 2020-11-21
+
+***************************
+New in FITSio_2.1-3
+
+Cleaned up fixed-format logical and integers in header preamble to conform with
+standard and GILDAS format
+
+A. Harris 2018-07-30
+
+***************************
+New in FITSio_2.1-2
+
+Added spaces to addComment and addHistory so comments and history start in
+column 11
+
+A. Harris 2017-01-15
+
+***************************
+New in FITSio_2.1-1
+
+Improved header parser to better deal with comments
+
+A. Harris 2016-12-18
+
+***************************
 New in FITSio_2.1-0
 
 Added ability to read ASCII tables.

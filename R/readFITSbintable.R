@@ -31,6 +31,15 @@ function (zz, hdr)
 ###      array descriptor)
 ###
 ### Updated for new header handling, 12/30/12 AH
+###
+### Added reads for 16X and 32X bit arrays, updated error messaging.
+###   2020.11.14 AH
+###
+### Added reads for 8X and 24X bit arrays, updated error messaging.
+###   2020.11.21 AH
+###
+###
+
 
     ## Parse header if full header is supplied instead of parsed version
     if (nchar(hdr[1])==80) hdr <- parseHdr(hdr)
@@ -100,7 +109,7 @@ function (zz, hdr)
         tmp <- substr(TFORMn[i], 1, nc - 1)
         mult[i] <- ifelse(tmp == "", 1, as.numeric(tmp))
         ## Format; btype: 1 character, 2 logical, 3 integer,
-        ## 4 numeric, 5 complex, 6 64-bit integer
+        ## 4 numeric, 5 complex, 6 64-bit integer, 7 24-bit bit array
         form <- tolower(substr(TFORMn[i], nc, nc))
         switch(form, l = {  # logical
             bsize[i] <- 1
@@ -131,8 +140,27 @@ function (zz, hdr)
         }, d = {            # 64-bit float (double)
             bsize[i] <- 8
             btype[i] <- 4
-        }, stop('Unknown TFORMn ', toupper(form),
-                ' (X, C, M, P not yet implemented)\n'))
+            bsign[i] <- FALSE
+        }, x = {            # some bit arrays read as integers
+            if (mult[i] == 8) {
+                btype[i] <- 3
+                bsize[i] <- 1
+                mult[i] <- 1 # 1 byte
+            } else if (mult[i] == 16) {
+                btype[i] <- 3
+                bsize[i] <- 2
+                mult[i] <- 1
+            } else if (mult[i] == 24) {
+                btype[i] <- 7
+                mult[i] <- 3 # 3 bytes
+            } else if (mult[i] == 32) {
+                btype[i] <- 3
+                bsize[i] <- 3
+                mult[i] <- 1
+            } else stop("Unsupported length in bit array \n")
+            bsign[i] <- FALSE  # unsigned
+        }, stop('Incompatible TFORMn **', toupper(form),
+                '** (C, M, P, arbitrary X lengths not yet implemented)\n'))
 
         ## Set up storage arrays: rows = number of table rows, columns =
         ## multiplier (depth) of the cells in each column.  Characters are an
@@ -150,7 +178,9 @@ function (zz, hdr)
                            #5, complex
                            array(NA, dim = c(naxis2, mult[i])),
                            #6, 64-bit integer, 2 32-bit integers
-                           array(NA, dim = c(2*naxis2, mult[i]))
+                           array(NA, dim = c(2*naxis2, mult[i])),
+                           #7, 24-bit bit array, 32-bit integer
+                           array(NA, dim = c(naxis2, 1))
                            )
     }
 
@@ -178,13 +208,28 @@ function (zz, hdr)
                    )
             }
             if (btype[j] == 6) {
-                # 6, 64-bit signed integer, 2 32-bit integers
+                # 64-bit signed integer, 2 32-bit integers
                 col[[j]][i, ] <- readBin(zz, what = integer(),
-                                    n = mult[j], size = 4,
+                                    n = mult[j], size = 4, signed = bsign[j],
                                     endian = "big")
                  col[[j]][i+naxis2, ] <- readBin(zz, what = integer(),
-                                    n = mult[j], size = 4,
+                                    n = mult[j], size = 4, signed = bsign[j],
                                     endian = "big")
+            }
+            if (btype[j] == 7) {
+                # 8 and 24-bit bit arrays, 32-bit integer
+                if (bsize[j]==1) { # single byte
+                    col[[j]][i, 1] <- as.integer(readBin(zz, "raw",n = 1,
+                                                 size = 1, endian = "big"))
+                    } else { # 24-bit
+                        tmp <- as.integer(readBin(zz, "raw", n = 3, size = 1,
+                                                  endian = "big"))
+                        col[[j]][i, 1] <- tmp[3]
+                        col[[j]][i, 1] <- bitwOr(col[[j]][i, 1],
+                                                 bitwShiftL(tmp[2], 8))
+                        col[[j]][i, 1] <- bitwOr(col[[j]][i, 1],
+                                                 bitwShiftL(tmp[1], 16))
+                    }
             }
         }
     }

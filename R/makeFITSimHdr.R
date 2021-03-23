@@ -16,7 +16,7 @@ function (X, primaryhdu = TRUE, type = 'double',
 ### Refs: http://fits.gsfc.nasa.gov/
 ###       Hanisch et al., Astr. Ap. 376, 359-380 (2001)
 ###
-### A. Harris, Univ. MD Astronomy, 2/1/13
+### A. Harris, Univ. MD Astronomy, 2/1/13, 7/30/19
 
     ## Number of axes, parse data type (single or double precision)
     naxisn <- dim(X)
@@ -72,23 +72,26 @@ function (X, primaryhdu = TRUE, type = 'double',
 
     if (primaryhdu) {
         cimages <- sprintf('%-80s',
-            "SIMPLE  = T                      / File conforms to FITS standard")
+            "SIMPLE  =                    T / File conforms to FITS standard")
      } else {
         cimages <- sprintf('%-80s',
             "XTENSION= 'IMAGE'                / Image extension")
     }
 
-    cimages <- addKwv('BITPIX', bitpix, 'number of bits per data pixel', cimages)
-    cimages <- addKwv('NAXIS', naxis, 'number of data axes', cimages)
-
-    tmp <- character(naxis)
+    spaces <- "                                                          "
+    tmp <- sprintf("BITPIX  = %20d / number of bits per data pixel %s",
+                   bitpix, spaces)
+    cimages <- c(cimages, substr(tmp, 1, 80))
+    tmp <- sprintf("NAXIS   = %20d / number of data axes %s",
+                         naxis, spaces)
+    cimages <- c(cimages, substr(tmp, 1, 80))
     for (i in 1:naxis) {
-        tmp[i] <- newKwv(sprintf('NAXIS%d', i), naxisn[i], 'length of data axis')
-    }
-    cimages <- c(cimages, tmp)
-
+        tmp <- sprintf("NAXIS%d  = %20d / length of data axis %s",
+                       i, naxisn[i], spaces)
+        cimages <- c(cimages, substr(tmp, 1, 80))
+        }
     cimages <- c(cimages, sprintf('%-80s',
-             "EXTEND  = T                      / FITS dataset may contain extensions"))
+             "EXTEND  =                    T / FITS dataset may contain extensions"))
     cimages <- addComment('  Written by the R language FITSio package', cimages)
     cimages <- addComment('  FITS (Flexible Image Transport System) format is defined in', cimages)
     cimages <- addComment('  Astronomy and Astrophysics, volume 376, page 359 (2001)', cimages)

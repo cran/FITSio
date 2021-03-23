@@ -24,7 +24,11 @@ function (file = "R.fits", hdu = 1, maxLines = 5000,
   ## Added ASCII table option 11/24/2016 AH
 ###
     ## Open file, read primary header unit
-    zz <- file(file, "rb")
+    if("connection" %in% class(file)){
+        zz <- file
+    } else{
+        zz <- file(file, "rb")
+    }
     header <- readFITSheader(zz, maxLines = maxLines, fixHdr = fixHdr[1])
     hdr <- parseHdr(header)
 

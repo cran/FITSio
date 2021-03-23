@@ -40,7 +40,7 @@ String with format and length matching FITS header standard for an image.
 \references{
 Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
 
-\url{http://fits.gsfc.nasa.gov/}
+\url{https://fits.gsfc.nasa.gov/}
 }
 \author{
 Andrew Harris

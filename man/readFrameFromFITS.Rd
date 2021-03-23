@@ -31,7 +31,7 @@ readFrameFromFITS(file, hdu = 1)
 \references{
 Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
 
-\url{http://fits.gsfc.nasa.gov/}
+\url{https://fits.gsfc.nasa.gov/}
 }
 
 \author{Eric H.\ Neilsen, Jr.}
@@ -39,8 +39,8 @@ Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
 
 \note{
   Graphical FITS viewers such as \emph{fv}
-  (\url{http://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
-(\url{http://hea-www.harvard.edu/RD/ds9/}) 
+  (\url{https://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
+(\url{http://ds9.si.edu/}) 
 have excellent facilities for displaying FITS data, headers, and file
 structure.  Having one or more graphical viewers available will
 prove extremely
@@ -56,7 +56,7 @@ unix, Windows, and Mac OS-X operating systems, and are available at no cost.
 require(FITSio)
 
 ## Either download example file from
-## <http://fits.gsfc.nasa.gov/fits_samples.html>
+## <https://fits.gsfc.nasa.gov/fits_samples.html>
 ## and use
 \dontrun{filename <- "IUElwp25637mxlo.fits"}
 ## or, for local example use

@@ -31,7 +31,7 @@ readFITSarray(zz, hdr)
 \references{
 Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
 
-\url{http://fits.gsfc.nasa.gov/}
+\url{https://fits.gsfc.nasa.gov/}
 }
 
 \author{Andrew Harris}
@@ -41,8 +41,8 @@ Function assigns values of 1 to CRPIX, CRVAL, and CDELT if they are
 unspecified in the header.
 
 Graphical FITS viewers such as \emph{fv}
-  (\url{http://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
-(\url{http://hea-www.harvard.edu/RD/ds9/})
+  (\url{https://heasarc.gsfc.nasa.gov/ftools/fv/}) and \emph{SAOImage DS9}
+(\url{http://ds9.si.edu/})
 have excellent facilities for displaying FITS data, headers, and file
 structure.  Having one or more graphical viewers available will
 prove extremely
@@ -62,9 +62,10 @@ unix, Windows, and Mac OS-X operating systems, and are available at no cost.
     require(FITSio)
     ## Make a test file.
     Z <- matrix(1:15, ncol = 3)
-    writeFITSim(Z, "test.fits")
+    filename <- paste(tempdir(), "test.fits", sep="")
+    writeFITSim(Z, filename)
     ## Open file, read header and array, close file and delete.
-    zz <- file(description = "test.fits", open = "rb")
+    zz <- file(description = filename, open = "rb")
     header <- readFITSheader(zz)  # image data off primary header
     D <- readFITSarray(zz, header)
     close(zz)
@@ -73,8 +74,6 @@ unix, Windows, and Mac OS-X operating systems, and are available at no cost.
     image(D$imDat)
     str(header)
     str(parseHdr(header))
-    ## Delete test file
-    unlink("test.fits")
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
