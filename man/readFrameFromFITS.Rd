@@ -21,7 +21,9 @@ readFrameFromFITS(file, hdu = 1)
 
   Binary table bit, complex, and array
   descriptor data types are not implemented in this release due to a lack
-  of examples for testing.
+  of examples for testing.  8,
+  16, 24, and 32-bit bit arrays return as integers.  Other lengths are
+  not supported. 
 }
 \value{
   An \R data frame with the contents of the

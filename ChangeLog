@@ -1,4 +1,12 @@
 ***************************
+New in FITSio_2.1-6
+
+Fixed typos in man pages. Added unlink()s to delete files written in temporary
+file space by examples to pass debian CRAN checks.	
+
+A. Harris 2021-04-02
+
+***************************
 New in FITSio_2.1-5
 
 Added read for remote as well as local files, following suggested code

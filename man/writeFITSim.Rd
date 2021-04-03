@@ -115,6 +115,7 @@ Z$axDat$cdelt[2] <- 20
 Z$axDat$cdelt
 writeFITSim(Z$imDat, file=filename, axDat=Z$axDat, header=Z$header)
 
+
 ### 3-dimensional array example
 ## Write sample file
 X <- array(1:210, dim = c(10, 7, 3))
@@ -125,6 +126,8 @@ dim(Z$imDat[,,2])
 image(Z$imDat[,,2], xaxt = "n", yaxt = "n")
 str(Z)
 print(Z$axDat)
+
+## Clean up files after examples to avoid clutter
 unlink(filename)
 
 ### Note: either of the writeFITSim() calls here could be replaced

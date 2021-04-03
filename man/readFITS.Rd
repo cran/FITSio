@@ -53,9 +53,10 @@ fixHdr = c('none', 'remove', 'substitute'), phdu = 1)
   option may or may not corrupt the following data.  The default is
   \code{fixHdr = 'none'}.  Partial matching is allowed.
 
-  Binary table bit, complex, and array
+  Binary table complex, and array
   descriptor data types are not implemented in this release due to a lack
-  of examples for testing.
+  of examples for testing. 8, 16, 24, and 32-bit bit arrays return as integers.  Other lengths
+  are not supported.
 }
 
 \value{
@@ -139,6 +140,8 @@ X$hdr[1:10]                       # Header sample
 X$hdr[which(X$hdr=="BITPIX")+1]   # BITPIX value from header
 ## No axis scale markings
 image(X$imDat, xlab = xlab, ylab = ylab, xaxt = "n", yaxt = "n")
+## Clean up to avoid clutter
+unlink(filename)
 
 ### Binary table examples
 ## Bintable with one row and differently multi-dimensional columns
@@ -173,16 +176,17 @@ ylab <- paste(colNames[yc], " [", colUnits[yc], "]", sep = "")
 plot(col[[xc]], col[[yc]], xlab = xlab, ylab = ylab, type = "l")
 detach(Z)
 
-### Read FITS file directly from URL (thanks to Bi Chen Wu)
+### Read FITS file directly from URL (thanks to Bi Cheng Wu)
 \dontrun{
-  require(magrittr)  # part of tidyverse,
-# https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html
-fits = fits_url %>% 
-  RETRY(url=.,verb="GET",times=20,quiet=T) %>% 
-  content(type="raw") %>% 
-  rawConnection %>% 
-  readFITS
+  require(httr)      # provides RETRY() and content()
+  require(magrittr)  # provides \%>\% pipe operator, (part of tidyverse)
+#
+  fits <- RETRY(verb="GET", url=fits_url) \%>\% 
+    content(type="raw") \%>\% 
+    rawConnection \%>\% 
+    readFITS
 }
+
 }
 
 \keyword{file}

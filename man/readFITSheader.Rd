@@ -99,6 +99,10 @@ writeFITSim(Z, file = filename, c1 = "Test FITS file",
     close(zz)
     hdr[1:10]                       # Header sample
     hdr[which(hdr=="BITPIX")+1]   # BITPIX value from header
+
+## Clean up files to avoid clutter
+unlink(filename)
+
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the

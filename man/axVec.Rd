@@ -52,6 +52,9 @@ ax2 <- axVec(2, X$axDat)
 xlab <- X$axDat$ctype[1]
 ylab <- paste(X$axDat$ctype[2], " [", X$axDat$cunit[2], "]", sep = "")
 image(ax1, ax2, X$imDat, xlab = xlab, ylab = ylab)
+
+## Clean up files to avoid clutter
+unlink(filename)
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the

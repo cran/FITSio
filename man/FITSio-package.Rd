@@ -17,8 +17,8 @@ defined by the International Astronomical Union's FITS Working Group.
 \tabular{ll}{
 Package: \tab FITSio\cr
 Type: \tab Package\cr
-Version: \tab 2.1-5\cr
-Date: \tab 2021-03-23\cr
+Version: \tab 2.1-6\cr
+Date: \tab 2021-03-28\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -32,9 +32,10 @@ list with data, header, and scaling information.
 \code{readFrameFromFITS} returns an \R data frame from a single binary
 table HDU.  Both functions accept an argument to pick out the
 \emph{n}th HDU in a larger file.
-Binary table bit, complex, and array
+Binary table complex, and array
 descriptor data types are not implemented in this release due to a lack
-of examples for testing.
+of examples for testing.  8, 16, 24, and 32-bit bit arrays return as integers.  Other lengths
+  are not supported.
 
 For writing, the package contains the high-level function
 \code{writeFITSim} to write FITS
@@ -53,7 +54,7 @@ Function \code{axVec} generates a vector for image axis labeling from
 data in an image FITS file.
 }
 \author{Andrew Harris <harris@astro.umd.edu>, with contributions from
-Eric H. Neilsen, Jr. and Bi Chen Wu
+Eric H. Neilsen, Jr. and Bi Cheng Wu
 }
 \references{
 Hanisch et al., \emph{Astron.\ Astrophys.} 376, 359-380 (2001)
@@ -91,6 +92,10 @@ Z <-  readFITS(filename)
   Z$axDat$cdelt[2] <- 20
 filename2 <- paste(tempdir(), "test.fits", sep="")
 writeFITSim(Z$imDat, file=filename2, axDat=Z$axDat, header=Z$header)
+
+## Clean up files to avoid clutter
+unlink(filename)
+unlink(filename2)
 }
 
 \keyword{file}
